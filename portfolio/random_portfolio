@@ -1,0 +1,64 @@
+import yfinance as yf
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+tickers = ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'TSLA'] 
+
+def nombre(
+        tickers: list[str],
+        start: str,
+        end: str,
+        n_portfolios: int
+        ):
+    
+    data = yf.download(tickers, start=start, end=end, auto_adjust=False)["Adj Close"] 
+    returns = np.log(data / data.shift(1)).dropna() # Log returns are additive: log(p2/p1) + log(p3/p2) = log((p2/p1) + (p3/p2)) = log(p3/p1) ; simple returns are not
+    mean_annual_returns = returns.mean()*252 # 252 = trading days in a year
+    annual_cov_matrix = returns.cov() * 252
+
+    results = np.zeros((3, n_portfolios))
+
+    for i in range(n_portfolios):
+        weights = np.random.random((len(tickers))) # random weights for each active
+        weights /= np.sum(weights) # normalize so the sum of the weights equals to 1
+
+        portfolio_return = np.dot(weights, mean_annual_returns) # = w_1 * r1 + w_2 * r2 + ... + w_n * rn
+        portfolio_volatility = np.sqrt(np.dot(weights.T, np.dot(annual_cov_matrix, weights)))
+        sharpe_ratio = portfolio_return / portfolio_volatility
+
+        results[0, i] = portfolio_return
+        results[1, i] = portfolio_volatility
+        results[2, i] = sharpe_ratio
+    
+    return results
+
+sets = {
+    "Solo Tech": ['AAPL', 'MSFT', 'GOOG', 'AMZN', 'NVDA'],
+    "Tech + Bonos": ['AAPL', 'MSFT', 'GOOG', 'AMZN', 'NVDA', 'TLT'],
+    "Tech + Cripto": ['AAPL', 'MSFT', 'GOOG', 'AMZN', 'NVDA', 'BTC-USD'],
+}
+
+plt.figure(figsize=(12,6))
+for name, ticklist in sets.items():
+    r = nombre(tickers, '2018-01-01', '2024-12-31', 10000)
+    plt.scatter(r[1], r[0], marker='o', s=3, alpha=0.6, label = name)
+
+plt.xlabel("Volatilidad Anual")
+plt.ylabel("Retorno Esperado Anual")
+plt.title("Comparación de Portafolios")
+plt.legend()
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+
+
+
+
+
+
+var_returns = returns.var()*252
+
+
+
+print(cov_matrix)
