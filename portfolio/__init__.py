@@ -1,0 +1,1 @@
+from .random_vs_optimized_SLSQP import random_portfolio, optimize_portfolio_slsqp
