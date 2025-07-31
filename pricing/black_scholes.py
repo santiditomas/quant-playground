@@ -16,6 +16,9 @@ def delta(S, K, T, r, sigma, option_type="call"):
     """
     Delta is the first derivative of option price with respect to underlying price S.
     """
+    epsilon = 1e-9 
+    T = np.maximum(T, epsilon)
+
     d1 = (np.log(S / K) + (r + 0.5 * sigma**2) * T) / (sigma * np.sqrt(T))
     if option_type == "call":
         return norm.cdf(d1)
